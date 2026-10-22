@@ -23,6 +23,7 @@
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
+#include <linux/delay.h>
 #include <linux/libfdt.h>
 #include <mapmem.h>
 #include <fdt_support.h>
@@ -295,8 +296,17 @@ static void boot_jump_linux(struct bootm_headers *images, int flag)
 			       0, 1, 0, 0, 0,
 			       &smccc_res);
 
-		// The SMC may take a few ms to jump to kernel. Hang.
-		while(1) {}
+		/*
+		 * The SMC may take a few ms to jump to kernel. If the
+		 * secure monitor refuses it (on Plinius the stock LK has
+		 * already used it to start U-Boot) it returns, so report
+		 * that and fall back to a plain jump.
+		 */
+		mdelay(10);
+		printf("MTK_SIP_KERNEL_BOOT returned 0x%lx, jumping directly\n",
+		       smccc_res.a0);
+		kernel_entry(images->ft_addr, NULL, NULL, NULL);
+		while (1) {}
 #endif
 
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
