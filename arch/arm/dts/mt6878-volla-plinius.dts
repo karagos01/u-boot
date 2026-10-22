@@ -1,0 +1,112 @@
+/*
+* SPDX-License-Identifier: (GPL-2.0 OR MIT)
+*/
+
+/dts-v1/;
+#include "mt6878.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "Volla Phone Plinius";
+	chassis-type = "handset";
+	compatible = "volla,plinius", "mediatek,mt6878";
+
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:921600n8";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* Left set up by the stock LK */
+		simplefb@fe20f000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0xfe20f000 0x0 0xa08c00>;
+			width = <1080>;
+			height = <2400>;
+			stride = <(1088 * 4)>;
+			format = "a8r8g8b8";
+		};
+	};
+
+	/*
+	 * Only the first bank is used by U-Boot itself. It ends below
+	 * security_dice_common (0x6fffe000) and the TEE carveout at
+	 * 0x70000000, so relocation never lands in secure memory.
+	 */
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x40000000 0x0 0x2f000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		aee-pstore@48080000 {
+			reg = <0x0 0x48080000 0x0 0x100000>;
+			no-map;
+		};
+
+		crypto-hw@48401000 {
+			reg = <0x0 0x48401000 0x0 0x1000>;
+			no-map;
+		};
+
+		bl31@48800000 {
+			reg = <0x0 0x48800000 0x0 0x200000>;
+			no-map;
+		};
+	};
+
+	gpio_keys: gpio-keys {
+		compatible = "gpio-keys";
+
+		pinctrl-0 = <&key_gpio_default>;
+		pinctrl-names = "default";
+
+		volup-key {
+			label = "Volume Up";
+			linux,code = <KEY_VOLUMEUP>;
+
+			gpios = <&pio 54 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
+
+&pio {
+	key_gpio_default: key-default {
+		pins-cmd1-dat {
+			input-enable;
+			bias-pull-up;
+		};
+	};
+};
+
+&u2port {
+	status = "okay";
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&ufshci {
+	status = "okay";
+};
+
+&ufsphy {
+	status = "okay";
+};
+
+&usbphy {
+	status = "okay";
+};
