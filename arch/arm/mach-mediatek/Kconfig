@@ -17,6 +17,7 @@ config TARGET_MT6878
 	select SYSCON
 	select MTK_SMC_JUMP
 	select TARGET_MEDIATEK_MOBILE
+	select LINUX_KERNEL_IMAGE_HEADER
 	help
 	  The MediaTek MT6878 is a ARM64-based SoC with 4x Cortex-A78 and
 	  4x Cortex-A55 including UART, SPI, USB, SD/MMC cards, UFS 3.1,
@@ -240,6 +241,9 @@ config MTK_TZ_MOVABLE
 	select ARCH_MISC_INIT
 	select OF_SYSTEM_SETUP
 	bool
+
+config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	default TEXT_BASE if TARGET_MT6878
 
 config MTK_SMC_JUMP
 	bool "Jump to payload via a MediaTek SMC call"
