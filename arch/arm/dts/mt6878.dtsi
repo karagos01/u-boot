@@ -324,14 +324,6 @@
 			ranges;
 
 			wakeup-source;
-
-			ssusb: ssusb@11200000 {
-				compatible = "mediatek,ssusb";
-				reg = <0x11200000 0x3e00>;
-				reg-names = "mac";
-				interrupts = <GIC_SPI 385 IRQ_TYPE_LEVEL_LOW 0>;
-				dr_mode = "peripheral";
-			};
 		};
 
 		ufsphy: ufsphy@112a0000 {
