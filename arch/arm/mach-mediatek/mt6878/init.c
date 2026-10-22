@@ -3,6 +3,7 @@
  * Copyright (C) 2025 Igor Belwon <igor.belwon@mentallysanemainliners.org>
  */
 
+#include <fdt_support.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <asm/armv8/mmu.h>
@@ -214,4 +215,19 @@ int dram_init(void)
 	gd->ram_size = get_ram_size((void *)gd->ram_base, SZ_2G);
 
 	return 0;
+}
+
+/*
+ * arch_fixup_fdt() hands the kernel only the U-Boot bank. On Plinius give
+ * it all of DRAM back, the kernel DT describes the secure carveouts.
+ */
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	u64 start = 0x40000000;
+	u64 size = 0x300000000;
+
+	if (fdt_node_check_compatible(gd->fdt_blob, 0, "volla,plinius"))
+		return 0;
+
+	return fdt_fixup_memory_banks(blob, &start, &size, 1);
 }
